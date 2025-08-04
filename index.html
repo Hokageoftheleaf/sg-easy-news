@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SG-EASY-NEWS | Singapore News Verifier & Predictor</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --sg-red: #d32f2f;
+            --sg-dark-red: #b71c1c;
+            --sg-white: #ffffff;
+            --sg-light-gray: #f8f8f8;
+            --sg-blue: #1a73e8;
+            --sg-green: #10B981;
+            --sg-yellow: #F59E0B;
+            --sg-gray: #4b5563;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, var(--sg-white) 0%, var(--sg-light-gray) 100%);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .red-text {
+            color: var(--sg-red);
+        }
+        
+        .red-border {
+            border: 1px solid var(--sg-red);
+        }
+        
+        .red-button {
+            background: var(--sg-red);
+            color: var(--sg-white);
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .red-button:hover {
+            background: var(--sg-dark-red);
+        }
+        
+        .header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 20px 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+        
+        .logo-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .merlion-logo {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--sg-red) 0%, var(--sg-dark-red) 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .merlion-logo i {
+            font-size: 30px;
+            color: var(--sg-white);
+        }
+        
+        .title {
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+        
+        .location-tag {
+            display: flex;
+            align-items: center;
+            background: rgba(211, 47, 47, 0.1);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+        
+        .location-tag i {
+            margin-right: 5px;
+            color: var(--sg-red);
+        }
+        
+        .input-section {
+            background: var(--sg-white);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        
+        .section-title {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .section-title i {
+            margin-right: 10px;
+            color: var(--sg-red);
+        }
+        
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .url-input {
+            flex-grow: 1;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border 0.3s ease;
+        }
+        
+        .url-input:focus {
+            outline: none;
+            border-color: var(--sg-red);
+            box-shadow: 0 0 0 3px rgba(211, 47, 47, 0.1);
+        }
+        
+        .analyze-btn {
+            padding: 15px 25px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+        }
+        
+        .analyze-btn i {
+            margin-right: 8px;
+        }
+        
+        .input-note {
+            font-size: 0.9rem;
+            color: var(--sg-gray);
+            margin-top: 10px;
+            padding-left: 5px;
+        }
+        
+        .results-section {
+            display: none;
+        }
+        
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .card {
+            background: var(--sg-white);
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+        
+        .tag {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .sg-context {
+            background: rgba(26, 115, 232, 0.1);
+            color: var(--sg-blue);
+        }
+        
+        .verifying {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--sg-yellow);
+        }
+        
+        .localized {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--sg-green);
+        }
+        
+        .card-content {
+            flex-grow: 1;
+            color: #4b5563;
+            line-height: 1.6;
+        }
+        
+        .reliability-high {
+            border-left: 5px solid var(--sg-green);
+        }
+        
+        .reliability-medium {
+            border-left: 5px solid var(--sg-yellow);
+        }
+        
+        .reliability-low {
+            border-left: 5px solid var(--sg-red);
+        }
+        
+        .detailed-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .sg-term {
+            display: flex;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(211, 47, 47, 0.05);
+            border-radius: 8px;
+        }
+        
+        .term-tag {
+            background: var(--sg-red);
+            color: var(--sg-white);
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-right: 15px;
+            height: fit-content;
+        }
+        
+        .term-content {
+            flex-grow: 1;
+        }
+        
+        .term-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .term-desc {
+            font-size: 0.9rem;
+            color: var(--sg-gray);
+        }
+        
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        
+        .history-item:last-child {
+            border-bottom: none;
+        }
+        
+        .history-source {
+            font-weight: 600;
+        }
+        
+        .history-topic {
+            color: var(--sg-gray);
+            font-size: 0.9rem;
+        }
+        
+        .history-time {
+            font-size: 0.85rem;
+            color: var(--sg-gray);
+        }
+        
+        .similar-article {
+            display: block;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            color: #333;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        
+        .similar-article:hover {
+            color: var(--sg-red);
+        }
+        
+        .similar-title {
+            font-weight: 600;
+            margin-bottom: 3px;
+        }
+        
+        .similar-source {
+            font-size: 0.85rem;
+            color: var(--sg-gray);
+        }
+        
+        .footer {
+            margin-top: 50px;
+            padding-top: 30px;
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+        }
+        
+        .footer-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        
+        .footer-logo {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .footer-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-left: 10px;
+        }
+        
+        .footer-tagline {
+            font-size: 0.9rem;
+            color: var(--sg-gray);
+            margin-bottom: 25px;
+        }
+        
+        .social-links {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        
+        .social-link {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #333;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+        
+        .social-link:hover {
+            background: var(--sg-red);
+            color: var(--sg-white);
+            transform: translateY(-3px);
+        }
+        
+        .copyright {
+            font-size: 0.8rem;
+            color: var(--sg-gray);
+        }
+        
+        .loading {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .loading-bar {
+            height: 10px;
+            background: #e5e7eb;
+            border-radius: 5px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .loading-bar::after {
+            content: '';
+            position: absolute;
+            left: -150px;
+            top: 0;
+            height: 100%;
+            width: 150px;
+            background: linear-gradient(to right, transparent 0%, var(--sg-red) 50%, transparent 100%);
+            animation: loading 1.5s infinite;
+        }
+        
+        @keyframes loading {
+            from {
+                left: -150px;
+            }
+            to {
+                left: 100%;
+            }
+        }
+        
+        @media (min-width: 768px) {
+            .header {
+                flex-direction: row;
+                justify-content: space-between;
+            }
+            
+            .logo-container {
+                margin-bottom: 0;
+            }
+            
+            .input-group {
+                flex-direction: row;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo-container">
+                <div class="merlion-logo">
+                    <i class="fas fa-lion"></i>
+                </div>
+                <h1 class="title red-text">SG-EASY-NEWS</h1>
+            </div>
+            <div class="location-tag">
+                <i class="fas fa-map-marker-alt"></i>
+                <span>Singapore Focused</span>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main>
+            <!-- URL Input Section -->
+            <section class="input-section">
+                <h2 class="section-title">
+                    <i class="fas fa-newspaper"></i>
+                    Singapore News Verification
+                </h2>
+                <div class="input-group">
+                    <input 
+                        type="url" 
+                        id="newsUrl" 
+                        placeholder="Enter Singapore news URL (e.g. straitstimes.com, gov.sg)" 
+                        class="url-input"
+                    >
+                    <button id="analyzeBtn" class="analyze-btn red-button">
+                        <i class="fas fa-search"></i> Analyze
+                    </button>
+                </div>
+                <p class="input-note">We specialize in Singapore news sources for the most accurate analysis.</p>
+            </section>
+
+            <!-- Results Section -->
+            <section id="resultsSection" class="results-section">
+                <div class="results-grid">
+                    <!-- Summary Card -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">News Summary</h3>
+                            <span class="tag sg-context">SG Context</span>
+                        </div>
+                        <div id="summaryContent" class="card-content">
+                            <div class="loading">
+                                <div class="loading-bar"></div>
+                                <div class="loading-bar"></div>
+                                <div class="loading-bar" style="width: 80%"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Reliability Card -->
+                    <div class="card reliability-medium">
+                        <div class="card-header">
+                            <h3 class="card-title">Singapore Fact Check</h3>
+                            <span class="tag verifying">Verifying</span>
+                        </div>
+                        <div id="reliabilityContent" class="card-content">
+                            <div class="loading">
+                                <div class="loading-bar"></div>
+                                <div class="loading-bar" style="width: 60%"></div>
+                                <div class="loading-bar" style="width: 70%"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Singapore Impact Card -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">SG Impact Prediction</h3>
+                            <span class="tag localized">Localized</span>
+                        </div>
+                        <div id="impactContent" class="card-content">
+                            <div class="loading">
+                                <div class="loading-bar"></div>
+                                <div class="loading-bar" style="width: 50%"></div>
+                                <div class="loading-bar" style="width: 90%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Detailed Analysis -->
+                <div class="detailed-grid">
+                    <!-- Singapore Terms -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Singapore Terms Analysis</h3>
+                        </div>
+                        <div id="termsContent" class="card-content">
+                            <div class="loading">
+                                <div class="loading-bar"></div>
+                                <div class="loading-bar" style="width: 70%"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Future Prediction -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Future Implications for Singapore</h3>
+                        </div>
+                        <div id="futureContent" class="card-content">
+                            <div class="loading">
+                                <div class="loading-bar"></div>
+                                <div class="loading-bar" style="width: 80%"></div>
+                                <div class="loading-bar" style="width: 60%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- History and Similar Articles -->
+                <div class="detailed-grid">
+                    <!-- History -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Analysis History</h3>
+                        </div>
+                        <div id="historyContent" class="card-content">
+                            <div class="history-item">
+                                <div>
+                                    <div class="history-source">Straits Times - Housing</div>
+                                </div>
+                                <div class="history-time">2 hours ago</div>
+                            </div>
+                            <div class="history-item">
+                                <div>
+                                    <div class="history-source">TODAY - Education</div>
+                                </div>
+                                <div class="history-time">1 day ago</div>
+                            </div>
+                            <div class="history-item">
+                                <div>
+                                    <div class="history-source">CNA - Economy</div>
+                                </div>
+                                <div class="history-time">3 days ago</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Similar Articles -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Similar Singapore Articles</h3>
+                        </div>
+                        <div id="similarContent" class="card-content">
+                            <a href="#" class="similar-article">
+                                <div class="similar-title">HDB housing grants to increase for first-time buyers</div>
+                                <div class="similar-source">Straits Times</div>
+                            </a>
+                            <a href="#" class="similar-article">
+                                <div class="similar-title">New measures to support Singaporean families</div>
+                                <div class="similar-source">TODAY Online</div>
+                            </a>
+                            <a href="#" class="similar-article">
+                                <div class="similar-title">Property market trends in Q3 2023</div>
+                                <div class="similar-source">Channel NewsAsia</div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <div class="merlion-logo">
+                        <i class="fas fa-lion"></i>
+                    </div>
+                    <div class="footer-title red-text">SG-EASY-NEWS</div>
+                </div>
+                <p class="footer-tagline">Singapore's premier news analysis tool</p>
+                <div class="social-links">
+                    <a href="#" class="social-link">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                    <a href="#" class="social-link">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                    <a href="#" class="social-link">
+                        <i class="fab fa-linkedin-in"></i>
+                    </a>
+                </div>
+                <p class="copyright">© 2023 SG-EASY-NEWS. Designed specifically for Singapore market analysis.</p>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const analyzeBtn = document.getElementById('analyzeBtn');
+            const newsUrlInput = document.getElementById('newsUrl');
+            const resultsSection = document.getElementById('resultsSection');
+            
+            // Function to simulate analysis
+            function analyzeNews(url) {
+                if (!url) {
+                    alert('Please enter a valid URL');
+                    return;
+                }
+                
+                // Show loading states
+                resultsSection.style.display = 'block';
+                
+                // Simulate API call delay
+                setTimeout(() => {
+                    // Generate sample data based on URL
+                    const isReliable = url.includes('straitstimes.com') ? 'high' : 
+                                      url.includes('gov.sg') ? 'high' : 
+                                      Math.random() > 0.5 ? 'medium' : 'low';
+                    
+                    // Update summary
+                    document.getElementById('summaryContent').innerHTML = `
+                        <p>This article discusses recent developments in Singapore's housing market. The government announced new housing grants for first-time buyers and adjustments to HDB policies to make home ownership more accessible.</p>
+                        <p class="mt-4">Key points include increased CPF housing grants, shorter waiting times for BTO flats, and new regulations for the resale market. These changes align with Singapore's commitment to affordable public housing.</p>
+                    `;
+                    
+                    // Update reliability
+                    const reliabilityCard = document.querySelector('#reliabilityContent').parentElement;
+                    reliabilityCard.className = 'card';
+                    
+                    if (isReliable === 'high') {
+                        reliabilityCard.classList.add('reliability-high');
+                        document.getElementById('reliabilityContent').innerHTML = `
+                            <div class="flex items-center mb-3">
+                                <i class="fas fa-check-circle" style="color: #10B981; font-size: 1.5rem; margin-right: 10px;"></i>
+                                <span class="font-medium" style="font-size: 1.1rem;">Highly Reliable</span>
+                            </div>
+                            <p class="text-sm mb-2">This source has a strong track record of accurate reporting on Singapore matters.</p>
+                            <p class="text-sm">Language analysis shows balanced wording without sensationalism. Cross-referenced with HDB and MND statements.</p>
+                        `;
+                    } else if (isReliable === 'medium') {
+                        reliabilityCard.classList.add('reliability-medium');
+                        document.getElementById('reliabilityContent').innerHTML = `
+                            <div class="flex items-center mb-3">
+                                <i class="fas fa-exclamation-circle" style="color: #F59E0B; font-size: 1.5rem; margin-right: 10px;"></i>
+                                <span class="font-medium" style="font-size: 1.1rem;">Moderately Reliable</span>
+                            </div>
+                            <p class="text-sm mb-2">This source is generally reliable but contains some speculative language about policy impacts.</p>
+                            <p class="text-sm">Cross-checking with HDB's official website is recommended for precise grant amounts and eligibility criteria.</p>
+                        `;
+                    } else {
+                        reliabilityCard.classList.add('reliability-low');
+                        document.getElementById('reliabilityContent').innerHTML = `
+                            <div class="flex items-center mb-3">
+                                <i class="fas fa-times-circle" style="color: #EF4444; font-size: 1.5rem; margin-right: 10px;"></i>
+                                <span class="font-medium" style="font-size: 1.1rem;">Low Reliability</span>
+                            </div>
+                            <p class="text-sm mb-2">This source shows signs of sensationalist bias and uses questionable terminology about Singapore housing policies.</p>
+                            <p class="text-sm">Verify facts with official HDB sources. Some claims about property market collapse appear exaggerated.</p>
+                        `;
+                    }
+                    
+                    // Update SG terms
+                    document.getElementById('termsContent').innerHTML = `
+                        <div class="sg-term">
+                            <span class="term-tag">SG Term</span>
+                            <div class="term-content">
+                                <div class="term-title">HDB (Housing & Development Board)</div>
+                                <div class="term-desc">Singapore's public housing authority, responsible for planning and developing affordable housing estates.</div>
+                            </div>
+                        </div>
+                        <div class="sg-term">
+                            <span class="term-tag">SG Term</span>
+                            <div class="term-content">
+                                <div class="term-title">BTO (Build-To-Order)</div>
+                                <div class="term-desc">HDB's system where new flats are built only when a sufficient number of applications are received.</div>
+                            </div>
+                        </div>
+                        <div class="sg-term">
+                            <span class="term-tag">SG Term</span>
+                            <div class="term-content">
+                                <div class="term-title">CPF Housing Grant</div>
+                                <div class="term-desc">Government subsidy to help eligible Singaporeans buy their first home using CPF savings.</div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // Update impact
+                    document.getElementById('impactContent').innerHTML = `
+                        <p class="mb-3">This housing policy update could affect Singapore in several ways:</p>
+                        <ul class="list-disc pl-5 space-y-2 mb-4">
+                            <li>Increased demand for BTO flats, especially in mature estates</li>
+                            <li>Potential stabilization of resale HDB prices</li>
+                            <li>Greater accessibility to home ownership for young couples</li>
+                            <li>Possible impact on private property market demand</li>
+                        </ul>
+                        <p class="text-sm text-gray-600">Based on Singapore's current housing policies and demographic trends.</p>
+                    `;
+                    
+                    // Update future
+                    document.getElementById('futureContent').innerHTML = `
+                        <p class="mb-3">Based on Singapore's current policies and trends:</p>
+                        <ul class="list-disc pl-5 space-y-2 mb-4">
+                            <li>We may see increased applications for BTO flats in the next sales launch</li>
+                            <li>Resale prices could stabilize as more buyers opt for new flats</li>
+                            <li>The government may introduce complementary policies to support housing affordability</li>
+                        </ul>
+                        <p class="text-sm text-gray-600">These projections are based on Singapore's unique context and may not apply elsewhere.</p>
+                    `;
+                    
+                    // Update history
+                    document.getElementById('historyContent').innerHTML = `
+                        <div class="history-item">
+                            <div>
+                                <div class="history-source">${url.includes('straitstimes') ? 'Straits Times' : url.includes('todayonline') ? 'TODAY' : 'Channel NewsAsia'} - Housing Policy</div>
+                            </div>
+                            <div class="history-time">Just now</div>
+                        </div>
+                        <div class="history-item">
+                            <div>
+                                <div class="history-source">${url.includes('todayonline') ? 'TODAY' : 'Straits Times'} - Property Market</div>
+                            </div>
+                            <div class="history-time">${Math.floor(Math.random() * 24) + 1} hours ago</div>
+                        </div>
+                        <div class="history-item">
+                            <div>
+                                <div class="history-source">CNA - Urban Development</div>
+                            </div>
+                            <div class="history-time">${Math.floor(Math.random() * 7) + 1} days ago</div>
+                        </div>
+                    `;
+
+                    // Update similar articles
+                    document.getElementById('similarContent').innerHTML = `
+                        <a href="#" class="similar-article">
+                            <div class="similar-title">HDB housing grants to increase for first-time buyers</div>
+                            <div class="similar-source">Straits Times</div>
+                        </a>
+                        <a href="#" class="similar-article">
+                            <div class="similar-title">New measures to support Singaporean families</div>
+                            <div class="similar-source">TODAY Online</div>
+                        </a>
+                        <a href="#" class="similar-article">
+                            <div class="similar-title">Property market trends in Q3 2023</div>
+                            <div class="similar-source">Channel NewsAsia</div>
+                        </a>
+                    `;
+                    
+                }, 1500);
+            }
+            
+            // Event listeners
+            analyzeBtn.addEventListener('click', function() {
+                analyzeNews(newsUrlInput.value);
+            });
+            
+            newsUrlInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    analyzeNews(newsUrlInput.value);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
